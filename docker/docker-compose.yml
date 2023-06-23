@@ -1,0 +1,41 @@
+version: '3'
+services:
+  virtual-dron-1:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    volumes:
+      - .:/app
+    command: --id 1
+
+  virtual-dron-2:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    volumes:
+      - .:/app
+    command: --id 2
+
+  virtual-dron-3:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    volumes:
+      - .:/app
+    command: --id 3
+
+  virtual-dron-4:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    volumes:
+      - .:/app
+    command: --id 4
+
+  virtual-dron-5:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    volumes:
+      - .:/app
+    command: --id 5
