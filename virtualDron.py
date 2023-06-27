@@ -37,13 +37,13 @@ mqtt_port = int(os.environ.get('MQTT_PORT'))
 num_drones = int(os.environ.get('NUM_DRONES'))
 
 # ------------------------------------------------------------------------------ #
-mqtt_topic_city = os.environ.get('MQTT_TOPIC_CITY')
+mqtt_topic_city = str(os.environ.get('MQTT_TOPIC_CITY'))
 
-STARTROUTE      = "PTIN2023/" + str(mqtt_topic_city) + "DRON/STARTROUTE"
-CONFIRMDELIVERY = "PTIN2023/" + str(mqtt_topic_city) + "DRON/CONFIRMDELIVERY"
+STARTROUTE      = "PTIN2023/" + mqtt_topic_city + "DRON/STARTROUTE"
+CONFIRMDELIVERY = "PTIN2023/" + mqtt_topic_city + "DRON/CONFIRMDELIVERY"
 
-UPDATESTATUS    = "PTIN2023/" + str(mqtt_topic_city) + "/DRON/UPDATESTATUS"
-UPDATELOCATION  = "PTIN2023/" + str(mqtt_topic_city) + "/DRON/UPDATELOCATION"
+UPDATESTATUS    = "PTIN2023/" + mqtt_topic_city + "/DRON/UPDATESTATUS"
+UPDATELOCATION  = "PTIN2023/" + mqtt_topic_city + "/DRON/UPDATELOCATION"
 # ------------------------------------------------------------------------------ #
 
 def get_angle(x1, y1, x2, y2):
@@ -182,7 +182,7 @@ class vdron:
     def on_connect(self, client, userdata, flags, rc):
 
         if rc == 0:
-            print(f"DRON {self.ID} | Cloud connectat amb èxit.")
+            print(f"DRON {self.ID} | EDGE {mqtt_topic_city} connectat amb èxit.")
         client.subscribe("PTIN2023/#")
 
     def on_message(self, client, userdata, msg):
