@@ -117,11 +117,11 @@ class vdron:
         return battery_level, autonomy
 
     def start_dron(self):
-        x1, y1 = self.coordinates[0][0], self.coordinates[0][1]
+        x1, y1 = self.coordinates[0][1], self.coordinates[0][0]
 
         # Loop through each coordinate
         for i in range(1, len(self.coordinates)):
-            x2, y2 = self.coordinates[i][0], self.coordinates[i][1]
+            x2, y2 = self.coordinates[i][1], self.coordinates[i][0]
 
             # Calculate the distance between the current point and the next point
             distance = (x2 - x1, y2 - y1)
@@ -150,8 +150,8 @@ class vdron:
 
         msg = {	"id_dron": 	        id,
                 "location_act": 	{
-                    "latitude":     location[0],
-                    "longitude":    location[1]
+                    "latitude":     location[1],
+                    "longitude":    location[0]
                 },
                 "status_num":       status,
                 "status":           status_dron[status],
