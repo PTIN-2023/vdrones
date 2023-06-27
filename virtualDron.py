@@ -37,6 +37,14 @@ mqtt_port = int(os.environ.get('MQTT_PORT'))
 num_drones = int(os.environ.get('NUM_DRONES'))
 
 # ------------------------------------------------------------------------------ #
+mqtt_topic_city = os.environ.get('MQTT_TOPIC_CITY')
+
+STARTROUTE      = "PTIN2023/" + str(mqtt_topic_city) + "DRON/STARTROUTE"
+CONFIRMDELIVERY = "PTIN2023/" + str(mqtt_topic_city) + "DRON/CONFIRMDELIVERY"
+
+UPDATESTATUS    = "PTIN2023/" + str(mqtt_topic_city) + "/DRON/UPDATESTATUS"
+UPDATELOCATION  = "PTIN2023/" + str(mqtt_topic_city) + "/DRON/UPDATELOCATION"
+# ------------------------------------------------------------------------------ #
 
 def get_angle(x1, y1, x2, y2):
     dx = x2 - x1
@@ -138,10 +146,8 @@ class vdron:
 
     def send_location(self, id, location, status, battery, autonomy):
 
-        # Connect to MQTT server
         self.clientS.connect(mqtt_address, mqtt_port, 60)
 
-        # JSON
         msg = {	"id_dron": 	        id,
                 "location_act": 	{
                     "latitude":     location[0],
@@ -152,34 +158,23 @@ class vdron:
                 "battery":          battery,
                 "autonomy":         autonomy}
 
-        # Code the JSON message as a string
         mensaje_json = json.dumps(msg)
-
-        # Publish in "PTIN2023/DRON"
-        self.clientS.publish("PTIN2023/DRON/UPDATELOCATION", mensaje_json)
-
-        # Close MQTT connection
+        self.clientS.publish(UPDATELOCATION, mensaje_json)
         self.clientS.disconnect()
 
     def update_status(self, id, status):
 
-        # Connect to MQTT server
         self.clientS.connect(mqtt_address, mqtt_port, 60)
 
-        # JSON
         msg = {	"id_dron":      id,
                 "status_num":   status,
                 "status":       status_dron[status]}
 
-        # Code the JSON message as a string
         mensaje_json = json.dumps(msg)
 
-        # Publish in "PTIN2023/DRON"
-        self.clientS.publish("PTIN2023/DRON/UPDATESTATUS", mensaje_json)
-
+        self.clientS.publish(UPDATESTATUS, mensaje_json)
         print("DRON: " + str(id) + " | STATUS:  " + status_desc[status])
-
-        # Close MQTT connection
+        
         self.clientS.disconnect()
 
     # ------------------------------------------------------------------------------ #
@@ -192,7 +187,7 @@ class vdron:
 
     def on_message(self, client, userdata, msg):
                 
-        if msg.topic == "PTIN2023/DRON/STARTROUTE":	
+        if msg.topic == STARTROUTE:	
 
             if(is_json(msg.payload.decode('utf-8'))):
                 
@@ -208,7 +203,7 @@ class vdron:
             else:
                 print("Message: " + msg.payload.decode('utf-8'))
 
-        elif msg.topic == "PTIN2023/DRON/CONFIRMDELIVERY":
+        elif msg.topic == CONFIRMDELIVERY:
 
             if(is_json(msg.payload.decode('utf-8'))):
 
