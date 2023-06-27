@@ -39,14 +39,12 @@ num_drones = int(os.environ.get('NUM_DRONES'))
 # ------------------------------------------------------------------------------ #
 mqtt_topic_city = str(os.environ.get('MQTT_TOPIC_CITY'))
 
-STARTROUTE      = "PTIN2023/" + mqtt_topic_city + "DRON/STARTROUTE"
-CONFIRMDELIVERY = "PTIN2023/" + mqtt_topic_city + "DRON/CONFIRMDELIVERY"
+STARTROUTE      = "PTIN2023/" + mqtt_topic_city + "/DRON/STARTROUTE"
+CONFIRMDELIVERY = "PTIN2023/" + mqtt_topic_city + "/DRON/CONFIRMDELIVERY"
 
 UPDATESTATUS    = "PTIN2023/" + mqtt_topic_city + "/DRON/UPDATESTATUS"
 UPDATELOCATION  = "PTIN2023/" + mqtt_topic_city + "/DRON/UPDATELOCATION"
 
-print(mqtt_topic_city)
-print(STARTROUTE)
 # ------------------------------------------------------------------------------ #
 
 def get_angle(x1, y1, x2, y2):
