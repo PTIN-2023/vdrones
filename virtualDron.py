@@ -44,6 +44,9 @@ CONFIRMDELIVERY = "PTIN2023/" + mqtt_topic_city + "DRON/CONFIRMDELIVERY"
 
 UPDATESTATUS    = "PTIN2023/" + mqtt_topic_city + "/DRON/UPDATESTATUS"
 UPDATELOCATION  = "PTIN2023/" + mqtt_topic_city + "/DRON/UPDATELOCATION"
+
+print(mqtt_topic_city)
+print(STARTROUTE)
 # ------------------------------------------------------------------------------ #
 
 def get_angle(x1, y1, x2, y2):
