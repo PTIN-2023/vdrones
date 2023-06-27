@@ -244,11 +244,11 @@ class vdron:
                 self.start_coordinates = True
 
                 # En proceso de carga ~ 5s
-                self.update_status(ID, 1)
+                self.update_status(self.ID, 1)
                 time.sleep(5)
 
                 # En reparto
-                self.update_status(ID, 3)
+                self.update_status(self.ID, 3)
                 self.start_dron()
 
             time.sleep(0.25)
@@ -275,7 +275,7 @@ class vdron:
                         self.order_delivered = True
                     else:
                         self.order_delivered = False
-                        self.update_status(ID, 10)
+                        self.update_status(self.ID, 10)
                     
                     self.wait_client = False
                     self.dron_return = True
