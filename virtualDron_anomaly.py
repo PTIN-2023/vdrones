@@ -1,14 +1,11 @@
 import math, time, argparse
 from threading import Thread
 import os
-# ---------------------------- #
 import json
 import paho.mqtt.client as mqtt
-# ------------------------------------------------------------------------------ #
 
-# Variables globals per forçar anomalies
-anomalia_forcada = False
-anomalia = ""
+
+
 
 status_dron = {
     1: "loading",
@@ -41,15 +38,21 @@ api_key = "1293361bdf356cc6360844d8bf8a9fcf"
 base_url = "http://api.openweathermap.org/data/2.5/weather?"
 complete_url = base_url + "appid=" + api_key + "&units=metric"
 
-mqtt_address = os.environ.get('MQTT_ADDRESS')
-mqtt_port = int(os.environ.get('MQTT_PORT'))
-num_drones = int(os.environ.get('NUM_DRONES'))
+mqtt_address = "147.83.159.195"
+mqtt_port = 24183
+num_drones = 10
 
 # ------------------------------------------------------------------------------ #
-mqtt_topic_city = str(os.environ.get('MQTT_TOPIC_CITY'))
+mqtt_topic_city = "VILANOVA"
+#mqtt_address = os.environ.get('MQTT_ADDRESS')
+#mqtt_port = int(os.environ.get('MQTT_PORT'))
+#num_drones = int(os.environ.get('NUM_DRONES'))
 
-STARTROUTE      = "PTIN2023/" + mqtt_topic_city + "DRON/STARTROUTE"
-CONFIRMDELIVERY = "PTIN2023/" + mqtt_topic_city + "DRON/CONFIRMDELIVERY"
+# ------------------------------------------------------------------------------ #
+#mqtt_topic_city = str(os.environ.get('MQTT_TOPIC_CITY'))
+
+STARTROUTE      = "PTIN2023/" + mqtt_topic_city + "/DRON/STARTROUTE"
+CONFIRMDELIVERY = "PTIN2023/" + mqtt_topic_city + "/DRON/CONFIRMDELIVERY"
 ANOMALIA        = "PTIN2023/" + mqtt_topic_city + "/DRON/ANOMALIA"
 
 UPDATESTATUS    = "PTIN2023/" + mqtt_topic_city + "/DRON/UPDATESTATUS"
@@ -79,6 +82,9 @@ class vdron:
         self.ID = id
 
         # State variables
+        # Variables globals per forçar anomalies
+        self.anomalia_forcada = False
+        self.anomalia = ""
         self.coordinates = None
         self.dron_return = False
         self.wait_client = False
@@ -218,7 +224,7 @@ class vdron:
                 "description":       description}
 
         mensaje_json = json.dumps(msg)
-
+    
         self.clientS.publish(REPORTANOMALIA, mensaje_json)
         print("DRON: " + str(id) + " | ANOMALIA:  " + anomalia + " -> " + description)
         
@@ -234,7 +240,7 @@ class vdron:
         client.subscribe("PTIN2023/#")
 
     def on_message(self, client, userdata, msg):
-                
+        print(msg.topic)
         if msg.topic == STARTROUTE:	
 
             if(is_json(msg.payload.decode('utf-8'))):
@@ -272,17 +278,15 @@ class vdron:
 
             if(is_json(msg.payload.decode('utf-8'))):
                 
-                global anomalia
-                global anomalia_forcada
 
                 payload = json.loads(msg.payload.decode('utf-8'))
                 needed_keys = ["id_dron", "hehe"]
                 
                 if all(key in payload for key in needed_keys):                
                     if self.ID == payload[needed_keys[0]]:
-                        anomalia_forcada = True
-                        anomalia = payload[needed_keys[1]]
-                        print("Rebuda anomalia forçada: %s" % (anomalia))
+                        self.anomalia_forcada = True
+                        self.anomalia = payload[needed_keys[1]]
+                        print("Rebuda anomalia forçada: %s" % (self.anomalia))
                 else:
                     print("FORMAT ERROR! --> PTIN2023/DRON/CONFIRMDELIVERY") 
 
@@ -290,7 +294,7 @@ class vdron:
                 print("Message: " + msg.payload.decode('utf-8'))
 
     def start(self):
-
+        
         clientR = mqtt.Client()
         clientR.on_connect = self.on_connect
         clientR.on_message = self.on_message
@@ -303,8 +307,9 @@ class vdron:
     def control(self):
 
         while True:
+        
             # Dos tipus de control, si hi ha anomalia o si no hi ha.
-            if anomalia_forcada:
+            if selfanomalia_forcada:
                 if self.coordinates != None and not self.start_coordinates:
                     self.start_coordinates = True
 
@@ -314,7 +319,7 @@ class vdron:
 
                     if anomalia == "cancel_betrayal":
                         anomalia_forcada = False
-                        description = ("ATENCIÓ: Paquet en colmena cancel·lat. Ignoro i escanejo un altre")
+                        description = ("ATENCIÓ: Paquet en colmena cancel·lat. Accions: Ignoro i escanejo un altre")
                         send_anomaly_report(self, self.ID, description)
                         self.update_status(self.ID, 1)
                         time.sleep(5)
@@ -335,6 +340,26 @@ class vdron:
                         waiting = 0
                         init = time.time()
                         while not self.user_confirmed and waiting < self.time_wait_client:
+                            if anomalia == "cancel_betrayal":
+                                anomalia_forcada = False
+                                description = ("ATENCIÓ: Paquet en lliurament cancel·lat. Accions: Retorno a colmena.")
+                                send_anomaly_report(self, self.ID, description)
+                                self.user_confirmed = False
+                                break
+                            elif anomalia == "noshow_betrayal":
+                                anomalia_forcada = False
+                                description = ("ATENCIÓ: El client no ha recollit el paquet a temps. Accions: Retornant a la colmena.")
+                                send_anomaly_report(self, self.ID, description)
+                                self.user_confirmed = False
+                                break
+
+                            elif anomalia == "impostor_betrayal":
+                                anomalia_forcada = False
+                                description = ("ATENCIÓ: QR del paquet a entregar no coincideix amb ID de l’usuari d’entrega. Accions: Retornant a la colmena.")
+                                send_anomaly_report(self, self.ID, description)
+                                self.user_confirmed = False
+                                break
+                            
                             waiting = (time.time() - init)
                         
                         if self.user_confirmed:
@@ -572,10 +597,16 @@ class vdron:
                             send_anomaly_report(self, self.ID, description)
                             #Todo: Codi perque redirigeixi
 
-                        # Queda escriure 4 anomalies mes
-                        
+                        elif self.anomalia == "lose_parcel":
+                            self.anomalia_forcada = False
+                            description = ("CRÍTIC: Paquet en lliurament perdut. Accions: Retorno a colmena.")
+                            send_anomaly_report(self, self.ID, description)
+                            self.order_delivered = False
+                            self.update_status(self.ID, 10)
+                            self.wait_client = False
+                            self.dron_return = True
 
-
+               
             else:
                 if self.coordinates != None and not self.start_coordinates:
                     self.start_coordinates = True
@@ -637,7 +668,8 @@ if __name__ == '__main__':
 
     threads = []
 
-    for i in range(1, num_drones+1):
+    for i in range(10, num_drones+1):
+        print(i)
         dron = vdron(i)
         API = Thread(target=dron.start)
         CTL = Thread(target=dron.control)
