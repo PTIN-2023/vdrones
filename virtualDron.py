@@ -32,10 +32,11 @@ status_desc = {
     10: "not delivered - el client no ha rebut el paquet" 
 }
 
-mqtt_address = os.environ.get('MQTT_ADDRESS')
-mqtt_port = int(os.environ.get('MQTT_PORT'))
-num_drones = int(os.environ.get('NUM_DRONES'))
-dron_speed = int(os.environ.get('DRON_SPEED'))
+mqtt_address            = os.environ.get('MQTT_ADDRESS')
+mqtt_port               = int(os.environ.get('MQTT_PORT'))
+num_drones              = int(os.environ.get('NUM_DRONES'))
+dron_speed              = int(os.environ.get('DRON_SPEED'))
+wait_client_seconds     = int(os.environ.get('WAIT_CLIENT_SECONDS'))
 
 # ------------------------------------------------------------------------------ #
 mqtt_topic_city = str(os.environ.get('MQTT_TOPIC_CITY'))
@@ -46,7 +47,6 @@ CONFIRMDELIVERY = "PTIN2023/" + mqtt_topic_city + "/DRON/CONFIRMDELIVERY"
 UPDATESTATUS    = "PTIN2023/" + mqtt_topic_city + "/DRON/UPDATESTATUS"
 UPDATELOCATION  = "PTIN2023/" + mqtt_topic_city + "/DRON/UPDATELOCATION"
 
-print(STARTROUTE)
 # ------------------------------------------------------------------------------ #
 
 def get_angle(x1, y1, x2, y2):
@@ -71,13 +71,13 @@ class vdron:
         self.ID = id
 
         # State variables
-        self.coordinates = None
-        self.dron_return = False
-        self.wait_client = False
-        self.user_confirmed = False
-        self.order_delivered = False
-        self.start_coordinates = False
-        self.time_wait_client = 180 # seconds
+        self.coordinates        = None
+        self.dron_return        = False
+        self.wait_client        = False
+        self.user_confirmed     = False
+        self.order_delivered    = False
+        self.start_coordinates  = False
+        self.time_wait_client   = wait_client_seconds
 
         # Initialize the battery level and the autonomy
         self.autonomy = 500
