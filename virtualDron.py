@@ -35,6 +35,7 @@ status_desc = {
 mqtt_address = os.environ.get('MQTT_ADDRESS')
 mqtt_port = int(os.environ.get('MQTT_PORT'))
 num_drones = int(os.environ.get('NUM_DRONES'))
+dron_speed = int(os.environ.get('DRON_SPEED'))
 
 # ------------------------------------------------------------------------------ #
 mqtt_topic_city = str(os.environ.get('MQTT_TOPIC_CITY'))
@@ -141,7 +142,7 @@ class vdron:
             x1, y1 = x2, y2
 
             # Add some delay to simulate the dron movement
-            time.sleep(2)
+            time.sleep(dron_speed)
 
         self.wait_client = True
         self.coordinates.reverse()
