@@ -290,7 +290,7 @@ class vdron:
                         self.anomalia = payload[needed_keys[1]]
                         print("Rebuda anomalia forçada: %s" % (self.anomalia))
                 else:
-                    print("FORMAT ERROR! --> PTIN2023/DRON/CONFIRMDELIVERY") 
+                    print("FORMAT ERROR! --> PTIN2023/DRON/ANOMALIA") 
 
             else:
                 print("Message: " + msg.payload.decode('utf-8'))
