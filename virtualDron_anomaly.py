@@ -5,9 +5,6 @@ import json
 import paho.mqtt.client as mqtt
 import requests
 
- 
-
-
 status_dron = {
     1: "loading",
     2: "unloading",
@@ -92,7 +89,7 @@ class vdron:
         self.user_confirmed = False
         self.order_delivered = False
         self.start_coordinates = False
-        self.time_wait_client = 180 # seconds
+        self.time_wait_client = 100 # seconds
 
         # Initialize the battery level and the autonomy
         self.autonomy = 500
@@ -136,7 +133,6 @@ class vdron:
 
     def start_dron(self):
         x1, y1 = self.coordinates[0][1], self.coordinates[0][0]
-
         # Loop through each coordinate
         for i in range(1, len(self.coordinates)):
             if self.anomalia_forcada:
@@ -243,6 +239,7 @@ class vdron:
         client.subscribe("PTIN2023/#")
 
     def on_message(self, client, userdata, msg):
+
         if msg.topic == STARTROUTE:	
 
             if(is_json(msg.payload.decode('utf-8'))):
@@ -387,7 +384,6 @@ class vdron:
                         
                         # Anomalia bateria baixa (<10%, >5%)
                         if self.anomalia == "set_battery_10":
-
                             self.battery_level = 10
                             self.anomalia_forcada = False
                             description = ("ATENCIÓ: Nivell de bateria baix, " + str(self.battery_level) + "%. Accions: Retornant a la colmena...")
@@ -424,7 +420,8 @@ class vdron:
                             self.send_anomaly_report(self.ID, description)
                             self.update_status(self.ID, 8)
                             time.sleep(15)
-                            print("ATENCIÓ: Temperatura normalitzada. Anant a la colmena per recomençar ruta...")
+                            print("ATENCIÓ: Clima normalitzat. Anant a la colmena per recomençar ruta...")
+                            self.update_status(self.ID, 5)
                             self.start_dron()
 
                             self.update_status(self.ID, 6)
@@ -444,6 +441,7 @@ class vdron:
 
                             time.sleep(15)
                             print("ATENCIÓ: Temperatura normalitzada. Anant a la colmena per recomençar ruta...")
+                            self.update_status(self.ID, 5)
                             self.start_dron()
 
                             self.update_status(self.ID, 6)
@@ -462,6 +460,7 @@ class vdron:
                             self.update_status(self.ID, 8)
                             time.sleep(15)
                             print("ATENCIÓ: Temperatura normalitzada. Anant a la colmena per recomençar ruta...")
+                            self.update_status(self.ID, 5)
                             self.start_dron()
 
                             self.update_status(self.ID, 6)
@@ -473,10 +472,24 @@ class vdron:
                             self.user_confirmed = False
                             self.order_delivered = False
                         
-                        elif self.anomalia == "make_unknow_weather":
+                        elif self.anomalia == "make_unknown_climate":
+                            print("return")
                             self.anomalia_forcada = False
                             description = ("ATENCIÓ: No és possible conèixer la informació meteorològica. Procedir amb cautela. Accions: Res.")
                             self.send_anomaly_report(self.ID, description)
+                            # Vuelta a a la colmena
+                            self.update_status(self.ID, 5)
+                            self.start_dron()
+
+                            # En espera, arriba a la colmena
+                            self.update_status(self.ID, 6)
+                            self.start_coordinates = False
+
+                            self.coordinates = None
+                            self.dron_return = False
+                            self.wait_client = False
+                            self.user_confirmed = False
+                            self.order_delivered = False
 
                         elif self.anomalia == "explode_drone" or self.anomalia == "break_engine" or self.anomalia == "break_helix" or self.anomalia == "break_sensor" or self.anomalia == "unncomunicate":
                             description = ("CRÍTIC: El Drone ha sofert un problema tècnic. Codi d'error: " + self.anomalia + ". Accions: Es requereix que un tècnic es desplaçi a l'útima localització del drone.")
@@ -513,6 +526,9 @@ class vdron:
                             description = ("CRÍTIC: Hi ha pluja / tempesta. Accions: Buscant refugi de forma immediata...")
                             self.send_anomaly_report(self.ID, description)
                             self.update_status(self.ID, 8)
+                            time.sleep(15)
+                            print("ATENCIÓ: Clima normalitzat. Anant a la colmena per recomençar ruta...")
+                            self.update_status(self.ID, 5)
                             self.start_dron()
 
                             self.update_status(self.ID, 6)
@@ -526,12 +542,12 @@ class vdron:
 
                         # Anomalia bateria baixa (<10%, >5%)
                         elif self.anomalia == "set_battery_10":
-
                             self.battery_level = 10
                             self.anomalia_forcada = False
                             description = ("ATENCIÓ: Nivell de bateria baix, " + str(self.battery_level) + "%. Accions: Retornant a la colmena...")
                             self.send_anomaly_report(self.ID, description)
-                            self.update_status(self.ID, 5)
+                            self.update_status(self.ID, 5) 
+                            self.coordinates.reverse()
                             self.start_dron()
 
                             self.dron_return = True
@@ -560,7 +576,7 @@ class vdron:
                             
                             time.sleep(15)
                             print("ATENCIÓ: Temperatura normalitzada. Anant a la colmena per recomençar ruta...")
-
+                            self.update_status(self.ID, 5)
                             self.start_dron()
 
                             self.update_status(self.ID, 6)
@@ -579,7 +595,7 @@ class vdron:
                             self.update_status(self.ID, 8)
                             time.sleep(15)
                             print("ATENCIÓ: Temperatura normalitzada. Anant a la colmena per recomençar ruta...")
-
+                            self.update_status(self.ID, 5)
                             self.start_dron()
 
                             self.update_status(self.ID, 6)
@@ -591,20 +607,26 @@ class vdron:
                             self.user_confirmed = False
                             self.order_delivered = False
                         
-                        elif self.anomalia == "make_unknow_weather":
+                        elif self.anomalia == "make_unknown_climate":
+                            print("not return")
                             self.anomalia_forcada = False
                             description = ("ATENCIÓ: No és possible conèixer la informació meteorològica. Procedir amb cautela.  Accions: Res.")
                             self.send_anomaly_report(self.ID, description)
+                            self.start_dron()
+
+
 
                         elif self.anomalia == "explode_drone" or self.anomalia == "break_engine" or self.anomalia == "break_helix" or self.anomalia == "break_sensor" or self.anomalia == "unncomunicate":
                             description = ("CRÍTIC: El Drone ha sofert un problema tècnic. Codi d'error: " + self.anomalia + ". Accions: Es requereix que un tècnic es desplaçi a l'útima localització del drone.")
                             self.send_anomaly_report(self.ID, description)
+                            self.update_status(self.ID, 8)
+                            exit()
                         
                         elif self.anomalia == "put_obstacle":
                             self.anomalia_forcada = False
                             description = ("ATENCIÓ: Obstacle imprevist a la ruta.  Accions: Redirigint.")
                             self.send_anomaly_report(self.ID, description)
-                            #Todo: Codi perque redirigeixi
+                            self.start_dron()
 
                         elif self.anomalia == "lose_parcel":
                             self.anomalia_forcada = False
@@ -657,7 +679,22 @@ class vdron:
                             elif self.anomalia == "explode_drone" or self.anomalia == "break_engine" or self.anomalia == "break_helix" or self.anomalia == "break_sensor" or self.anomalia == "unncomunicate":
                                 description = ("CRÍTIC: El Drone ha sofert un problema tècnic. Codi d'error: " + self.anomalia + ". Accions: Es requereix que un tècnic es desplaçi a l'útima localització del drone.")
                                 self.send_anomaly_report(self.ID, description)
+                                self.update_status(self.ID, 8)
                                 exit()
+                            elif self.anomalia == "noshow_betrayal":
+                                self.anomalia_forcada = False
+                                description = ("ATENCIÓ: El client no ha recollit el paquet a temps. Accions: Retornant a la colmena.")
+                                self.send_anomaly_report(self.ID, description)
+                                self.user_confirmed = False
+                                break
+                            elif self.anomalia == "impostor_betrayal":
+                                self.anomalia_forcada = False
+                                description = ("ATENCIÓ: QR del paquet a entregar no coincideix amb ID de l’usuari d’entrega. Accions: Retornant a la colmena.")
+                                self.send_anomaly_report(self.ID, description)
+                                self.user_confirmed = False
+                                self.dron_return = True
+                                self.coordinates.reverse()
+                                break
                             waiting = (time.time() - init)
                         
                         if self.user_confirmed:
@@ -713,6 +750,14 @@ class vdron:
                             time.sleep(2)
                             self.update_status(self.ID, 5)
                             self.start_dron()
+                            self.update_status(self.ID, 6)
+                            self.start_coordinates = False
+
+                            self.coordinates = None
+                            self.dron_return = False
+                            self.wait_client = False
+                            self.user_confirmed = False
+                            self.order_delivered = False
                             break
 
 
