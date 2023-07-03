@@ -405,6 +405,7 @@ class vdron:
                         elif self.anomalia == "explode_drone" or self.anomalia == "break_engine" or self.anomalia == "break_helix" or self.anomalia == "break_sensor" or self.anomalia == "unncomunicate":
                             description = ("CRÍTIC: El Drone ha sofert un problema tècnic. Codi d'error: " + self.anomalia + ". Accions: Es requereix que un tècnic es desplaçi a l'útima localització del drone.")
                             self.send_anomaly_report(self.ID, description)
+                            self.update_status(self.ID, 5)
                             self.update_status(self.ID, 8)
                             exit()
                         elif self.anomalia == "noshow_betrayal":
@@ -445,6 +446,7 @@ class vdron:
                         description = ("CRÍTIC: Nivell de bateria baix, " + str(self.battery_level) + "%. Accions: Buscant refugi de forma immediata...")
                         self.send_anomaly_report(self.ID, description)
                         if self.interpolation_val > (len(self.coordinates)-1)/2:
+                            self.update_status(self.ID, 5)
                             self.update_status(self.ID, 8)
                             # Per simular anomalia
                             time.sleep(15)
@@ -611,6 +613,7 @@ class vdron:
                         self.anomalia_forcada = False
                         description = ("CRÍTIC: Nivell de bateria baix, " + str(self.battery_level) + "%. Accions: Buscant refugi de forma immediata...")
                         self.send_anomaly_report(self.ID, description)
+                        self.update_status(self.ID, 5)
                         self.update_status(self.ID, 8)
                         # Per simular anomalia
                         time.sleep(15)
