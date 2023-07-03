@@ -534,6 +534,7 @@ class vdron:
                     # En espera, arriba a la colmena
                     self.update_status(self.ID, 6)
                     self.start_coordinates = False
+                    self.battery_level = 100
 
                     self.coordinates = None
                     self.dron_return = False
