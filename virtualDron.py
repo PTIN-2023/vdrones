@@ -35,7 +35,7 @@ status_desc = {
 mqtt_address            = os.environ.get('MQTT_ADDRESS')
 mqtt_port               = int(os.environ.get('MQTT_PORT'))
 num_drones              = int(os.environ.get('NUM_DRONES'))
-dron_speed              = int(os.environ.get('DRON_SPEED'))
+dron_speed              = float(os.environ.get('DRON_SPEED'))
 wait_client_seconds     = int(os.environ.get('WAIT_CLIENT_SECONDS'))
 
 # ------------------------------------------------------------------------------ #
