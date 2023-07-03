@@ -207,6 +207,7 @@ class vdron:
 
         mensaje_json = json.dumps(msg)
         self.clientS.publish(UPDATELOCATION, mensaje_json)
+        # Oderscar_sent
         self.clientS.disconnect()
 
     def update_status(self, id, status):
@@ -589,6 +590,7 @@ class vdron:
                         self.anomalia_forcada = False
                         description = ("CRÍTIC: El Drone ha sofert un problema tècnic. Codi d'error: " + self.anomalia + ". Accions: Es requereix que un tècnic es desplaçi a l'útima localització del drone.")
                         self.send_anomaly_report(self.ID, description)
+                        self.update_status(self.ID, 5)
                         self.update_status(self.ID, 8)
                         exit()
                     # Anomalia bateria baixa (<10%, >5%)
