@@ -438,7 +438,6 @@ class vdron:
                     self.dron_return = True
 
                 elif self.dron_return:
-                    print("A")
                     if self.anomalia == "set_battery_5":
                         self.battery_level = 5
                         self.anomalia_forcada = False
@@ -452,7 +451,6 @@ class vdron:
                             exit()
 
                     elif self.anomalia == "make_rain" or self.anomalia == "make_thunder":
-                        print("B")
                         self.anomalia_forcada = False
                         description = ("CRÍTIC: Hi ha pluja / tempesta. Accions: Buscant refugi de forma immediata...")
                         self.send_anomaly_report(self.ID, description)
@@ -511,7 +509,6 @@ class vdron:
                         self.order_delivered = False
                     
                     elif self.anomalia == "make_unknown_climate":
-                        print("return")
                         self.anomalia_forcada = False
                         description = ("ATENCIÓ: No és possible conèixer la informació meteorològica. Procedir amb cautela. Accions: Res.")
                         self.send_anomaly_report(self.ID, description)
@@ -546,7 +543,6 @@ class vdron:
 
                         
                 else:
-                    print("Voy")
                     if self.anomalia == "cancel_betrayal":
                         self.anomalia_forcada = False
                         description = ("ATENCIÓ: Paquet en lliurament cancel·lat. Accions: Retorno a colmena.")
@@ -693,7 +689,6 @@ if __name__ == '__main__':
     threads = []
 
     for i in range(1, num_drones+1):
-        print(i)
         dron = vdron(i)
         API = Thread(target=dron.start)
         CTL = Thread(target=dron.control)
