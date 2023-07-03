@@ -171,12 +171,13 @@ class vdron:
             self.wait_client = True
             self.coordinates.reverse()
 
-    def send_location(self, id, location, status, battery, autonomy):
+    def send_location(self, id, pos, status, battery, autonomy):
+        latitude, longitude = pos
 
         # Anomalia temps
         # Posem factor Random perque no fagi calls a la api cada dos per tres
 
-        url = complete_url + "&lat=" + str(location[0]) + "&lon=" + str(location[1])
+        url = complete_url + "&lat=" + str(latitude) + "&lon=" + str(longitude)
         response = requests.get(url)
         x = response.json()
         if x["cod"] != "404":   
@@ -196,8 +197,8 @@ class vdron:
 
         msg = {	"id_dron": 	        id,
                 "location_act": 	{
-                    "latitude":     location[1],
-                    "longitude":    location[0]
+                    "latitude":     latitude,
+                    "longitude":    longitude
                 },
                 "status_num":       status,
                 "status":           status_dron[status],
