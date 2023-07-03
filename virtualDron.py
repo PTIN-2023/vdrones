@@ -41,9 +41,10 @@ wait_client_seconds     = int(os.environ.get('WAIT_CLIENT_SECONDS'))
 # ------------------------------------------------------------------------------ #
 mqtt_topic_city = str(os.environ.get('MQTT_TOPIC_CITY'))
 
+# Mensajes que recibimos
 STARTROUTE      = "PTIN2023/" + mqtt_topic_city + "/DRON/STARTROUTE"
 CONFIRMDELIVERY = "PTIN2023/" + mqtt_topic_city + "/DRON/CONFIRMDELIVERY"
-
+# Mensajes que enviamos
 UPDATESTATUS    = "PTIN2023/" + mqtt_topic_city + "/DRON/UPDATESTATUS"
 UPDATELOCATION  = "PTIN2023/" + mqtt_topic_city + "/DRON/UPDATELOCATION"
 
@@ -135,7 +136,7 @@ class vdron:
             # Control the dron movement based on the angle and update the battery level and the autonomy
             self.battery_level, self.autonomy = self.move_dron(angle, distance, self.battery_level, self.autonomy)
 
-            # Send the dron position to Cloud
+            # Send the dron position to Edge
             self.send_location(self.ID, self.coordinates[i], 5 if self.dron_return else 3, self.battery_level, self.autonomy)
 
             # Update the current point
